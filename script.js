@@ -1,14 +1,15 @@
 const data = {
-  USD: {EUR: 0.82, GBP: 0.74},
-  EUR: {USD: 1.23, GBP: 0.91},
-  GBP: {USD: 1.35, EUR: 1.10},
+  USD: { EUR: 0.82, GBP: 0.74, TRY: 7.57 },
+  EUR: { USD: 1.23, GBP: 0.91, TRY: 9.25 },
+  GBP: { USD: 1.35, EUR: 1.10, TRY: 10.24 },
+  TRY: { EUR: 0.11, USD: 0.13, GBP: 0.098 }
 };
 
 const currencyKeys = Object.keys(data);
 
-function createCurrencyElements(elements, root, inputName){
-  for(let i =0; i< elements.length; i++){
-    const currencyKeyDiv   = document.createElement("div");
+function createCurrencyElements(elements, root, inputName) {
+  for (let i = 0; i < elements.length; i++) {
+    const currencyKeyDiv = document.createElement("div");
     const currencyKeyInput = document.createElement("input");
     currencyKeyInput.setAttribute("type", "radio");
     currencyKeyInput.setAttribute("name", inputName);
@@ -37,18 +38,50 @@ createCurrencyElements(currencyKeys, parentToEl, toInputName);
 
 
 const calculateButton = document.querySelector("#calculate-button");
-calculateButton.addEventListener("click", function(){
-   // kimden ceviriyourz
-   const fromTarget = document.querySelector("input[name='currency_from']:checked").value;
-   // kime ceviriyoruz
-   const toTarget   = document.querySelector("input[name='currency_to']:checked").value;
-   // amountu alalim
-   const amount     = document.querySelector("input[name='amount']").value;
+calculateButton.addEventListener("click", function () {
 
-   const currentCurrencyObject = data[fromTarget];
-   const resultForOne = currentCurrencyObject[toTarget];
-   const result = amount * resultForOne;
+  const currencyFromInput = document.querySelector("input[name='currency_from']:checked");
+  const currencyToInput = document.querySelector("input[name='currency_to']:checked");
+  const amountInput = document.querySelector("input[name='amount']");
+  const currencyResult = document.querySelector("#currency-result");
 
-   const currencyResult = document.querySelector("#currency-result");
-   currencyResult.innerHTML = amount + " " + fromTarget + " = " + result + " " + toTarget;
+  if (!currencyFromInput && !currencyToInput) {
+    new Toast("Bir seçim yapmalısınız");
+    return;
+  }
+
+  if (!currencyFromInput) {
+    new Toast("Hangi para biriminden çevrileceğini seçmelisiniz");
+    return;
+  }
+
+  if (!currencyToInput) {
+    new Toast("Hangi para birimine çevrileceğini seçmelisiniz");
+    return;
+  }
+
+  if (currencyFromInput.value === currencyToInput.value) {
+    new Toast("Farklı para birimleri seçmelisiniz");
+    currencyResult.innerHTML = "";
+    return;
+  }
+
+  // Kimden çeviriyoruz
+  const fromTarget = currencyFromInput.value;
+  // Kime çeviriyoruz
+  const toTarget = currencyToInput.value;
+  // amountu alalim
+  const amount = amountInput.value;
+
+  if (isNaN(amount)) {
+    new Toast("Lütfen bir sayı giriniz");
+    currencyResult.innerHTML = "";
+    return;
+  }
+
+  const currentCurrencyObject = data[fromTarget];
+  const resultForOne = currentCurrencyObject[toTarget];
+  const result = amount * resultForOne;
+
+  currencyResult.innerHTML = amount + " " + fromTarget + " = " + result + " " + toTarget;
 });
